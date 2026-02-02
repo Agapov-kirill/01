@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Интерактивный гайд SORP — банк-ready сценарий</title>
+  <meta name="description" content="Интерактивный гайд SORP: как подготовить компанию к открытию корпоративного счёта в банке ОАЭ без отказов и заморозок." />
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f6f4;
+      --surface: #ffffff;
+      --text: #1b1b1b;
+      --muted: #6b6b6b;
+      --line: #e6e2dc;
+      --accent: #1f4f3b;
+      --accent-soft: #e6f0eb;
+      --shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+      --radius: 18px;
+      --transition: 220ms ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    header {
+      padding: 32px 20px 8px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 2.6vw, 2.6rem);
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0 0 12px;
+      color: var(--muted);
+    }
+
+    .subtitle {
+      margin-top: 12px;
+      color: var(--muted);
+      max-width: 760px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .progress-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg);
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .progress {
+      height: 8px;
+      border-radius: 999px;
+      background: #e9e5df;
+      overflow: hidden;
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--accent), #346d52);
+      transition: width var(--transition);
+    }
+
+    main {
+      padding: 24px 20px 80px;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .intro-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      margin: 24px 0;
+    }
+
+    .pill {
+      padding: 16px;
+      border-radius: 14px;
+      background: #fdfdfb;
+      border: 1px solid var(--line);
+      min-height: 110px;
+    }
+
+    .pill h3 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .question {
+      margin: 24px 0;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option {
+      border: 1px solid var(--line);
+      padding: 14px 16px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      background: #fbfbfa;
+      transition: border var(--transition), transform var(--transition);
+    }
+
+    .option input {
+      accent-color: var(--accent);
+    }
+
+    .option:hover {
+      transform: translateY(-1px);
+      border-color: #d5d0c9;
+    }
+
+    .hint {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      color: #1c3b2d;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity var(--transition), transform var(--transition);
+    }
+
+    .hint.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mini-diagram {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chip {
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: white;
+      border: 1px solid rgba(31, 79, 59, 0.2);
+      font-size: 0.85rem;
+    }
+
+    .arrow {
+      width: 20px;
+      height: 2px;
+      background: rgba(31, 79, 59, 0.4);
+      position: relative;
+    }
+
+    .arrow::after {
+      content: "";
+      position: absolute;
+      right: -2px;
+      top: -3px;
+      border-left: 6px solid rgba(31, 79, 59, 0.4);
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 22px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 8px 18px rgba(31, 79, 59, 0.25);
+    }
+
+    .btn-primary:disabled {
+      background: #9cad9f;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      background: white;
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .btn-primary:hover:not(:disabled),
+    .btn-secondary:hover {
+      transform: translateY(-1px);
+    }
+
+    .final-block {
+      margin-top: 24px;
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: #fbfbfa;
+    }
+
+    .cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .cta-link {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .whatsapp {
+      background: #1f4f3b;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 999px;
+    }
+
+    .form-card {
+      margin-top: 18px;
+      border: 1px dashed #b8c2bb;
+      padding: 16px;
+      border-radius: 14px;
+      background: white;
+      display: none;
+    }
+
+    .form-card.visible {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #222;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 12px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity var(--transition), transform var(--transition);
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    footer {
+      margin-top: 40px;
+      padding: 20px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .white-spots {
+      margin-top: 24px;
+      padding: 18px;
+      border-radius: 16px;
+      background: #f5f3f0;
+      border: 1px solid var(--line);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (min-width: 768px) {
+      main {
+        padding: 32px 20px 100px;
+      }
+
+      .card {
+        padding: 32px;
+      }
+
+      .nav {
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-wrap">
+    <div class="progress" aria-label="Прогресс">
+      <span id="progress-bar"></span>
+    </div>
+  </div>
+
+  <header>
+    <h1>Интерактивный гайд SORP</h1>
+    <p class="subtitle">Как подготовить компанию к открытию корпоративного счёта в банке ОАЭ — без отказов и «заморозок»</p>
+  </header>
+
+  <main>
+    <section class="card intro">
+      <div class="intro-grid">
+        <div class="pill">
+          <h3>Кому</h3>
+          <p>Собственникам, директорам и операционным руководителям в ОАЭ.</p>
+        </div>
+        <div class="pill">
+          <h3>Цель</h3>
+          <p>Подготовить bank-ready логику до подачи — без пустых кругов.</p>
+        </div>
+        <div class="pill">
+          <h3>Важно</h3>
+          <p>20 лет в ОАЭ: говорим чётко, но не раскрываем банк-специфику.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card screen active" data-screen="1">
+      <h2>Начинаем с правильных вводных — это экономит недели.</h2>
+
+      <div class="question">
+        <p><strong>Тип компании:</strong></p>
+        <div class="options" role="radiogroup" aria-label="Тип компании">
+          <label class="option"><input type="radio" name="q1" value="Mainland" /> Mainland</label>
+          <label class="option"><input type="radio" name="q1" value="Free Zone" /> Free Zone</label>
+          <label class="option"><input type="radio" name="q1" value="Есть юрлицо вне ОАЭ, нужен счёт/структура" /> Есть юрлицо вне ОАЭ, нужен счёт/структура</label>
+          <label class="option"><input type="radio" name="q1" value="Ещё нет" /> Ещё нет</label>
+        </div>
+      </div>
+
+      <div class="question">
+        <p><strong>Подписант по счёту — резидент (виза + Emirates ID)?</strong></p>
+        <div class="options" role="radiogroup" aria-label="Статус подписанта">
+          <label class="option"><input type="radio" name="q2" value="Да" /> Да</label>
+          <label class="option"><input type="radio" name="q2" value="Нет" /> Нет</label>
+          <label class="option"><input type="radio" name="q2" value="В процессе" /> В процессе</label>
+        </div>
+      </div>
+
+      <div class="hint" id="hint-1">
+        <p>Базовая развилка комплаенса: resident vs non-resident и уровень доказательств по управлению и источнику средств.</p>
+        <p>Почему SORP подключается до подачи: чтобы не потерять время на неверной структуре/ролях/логике присутствия.</p>
+        <div class="mini-diagram">
+          <span class="chip">Вводные</span><span class="arrow"></span>
+          <span class="chip">Режим KYC</span><span class="arrow"></span>
+          <span class="chip">Ожидания банка по счёту</span>
+        </div>
+      </div>
+
+      <div class="nav">
+        <button class="btn-ghost" id="reset-btn-1">Сбросить</button>
+        <button class="btn-primary" id="next-1" disabled>Далее</button>
+      </div>
+    </section>
+
+    <section class="card screen" data-screen="2">
+      <h2>Банку нужна логика: кто вы, что делаете, откуда деньги, как выглядят операции.</h2>
+
+      <div class="question">
+        <p><strong>Профиль деятельности:</strong></p>
+        <div class="options" role="radiogroup" aria-label="Профиль деятельности">
+          <label class="option"><input type="radio" name="q3" value="Услуги" /> Услуги</label>
+          <label class="option"><input type="radio" name="q3" value="Торговля" /> Торговля</label>
+          <label class="option"><input type="radio" name="q3" value="IT / Digital" /> IT / Digital</label>
+          <label class="option"><input type="radio" name="q3" value="Инвестиции" /> Инвестиции</label>
+          <label class="option"><input type="radio" name="q3" value="Смешанная" /> Смешанная</label>
+        </div>
+      </div>
+
+      <div class="hint" id="hint-2">
+        <p><strong>Базовый набор, который чаще всего требуется</strong></p>
+        <ul>
+          <li>паспорт подписанта и акционеров</li>
+          <li>действующая резидентская виза подписанта</li>
+          <li>Emirates ID подписанта</li>
+          <li>учредительные документы + полномочия подписанта</li>
+          <li>выписка с личного счёта подписанта за 6 месяцев</li>
+          <li>бизнес-профиль компании</li>
+          <li>подтверждение фактического адреса</li>
+          <li>данные о 3 контрагентах</li>
+          <li>если компании &gt; 6 месяцев — несколько контрактов и инвойсов</li>
+        </ul>
+        <p>Инсайт: Чем больше признаков экономического присутствия в ОАЭ, тем проще согласование комплаенса по операциям.</p>
+        <div class="mini-diagram">
+          <span class="chip">Документы</span><span class="arrow"></span>
+          <span class="chip">Профиль бизнеса</span><span class="arrow"></span>
+          <span class="chip">Контрагенты</span><span class="arrow"></span>
+          <span class="chip">Проверка логики операций</span>
+        </div>
+      </div>
+
+      <div class="nav">
+        <button class="btn-secondary" id="back-2">Назад</button>
+        <button class="btn-primary" id="next-2" disabled>Далее</button>
+      </div>
+    </section>
+
+    <section class="card screen" data-screen="3">
+      <h2>Name &amp; license должны «звучать» одинаково — иначе комплаенс сомневается.</h2>
+
+      <div class="question">
+        <p><strong>Есть ли в названии/структуре чувствительные элементы?</strong></p>
+        <div class="options" role="group" aria-label="Элементы названия">
+          <label class="option"><input type="checkbox" name="q4" value="East / West / International / American / European" /> East / West / International / American / European</label>
+          <label class="option"><input type="checkbox" name="q4" value="Аббревиатуры" /> Аббревиатуры</label>
+          <label class="option"><input type="checkbox" name="q4" value="Числа" /> Числа</label>
+          <label class="option"><input type="checkbox" name="q4" value="Слово “Gulf" /> Слово “Gulf”</label>
+          <label class="option"><input type="checkbox" name="q4" value="Похоже на чужой бренд/торговую марку" /> Похоже на чужой бренд/торговую марку</label>
+          <label class="option"><input type="checkbox" name="q4" value="Ничего из этого" /> Ничего из этого</label>
+        </div>
+      </div>
+
+      <div class="hint" id="hint-3">
+        <p>Для локальной компании в Дубае обычно готовят 10–15 вариантов имени и резервируют Trade Name (англо-арабский документ: перевод или транслитерация).</p>
+        <p>Запрещены непристойные/оскорбительные слова и религиозные термины.</p>
+        <p>Нестандартные элементы могут потребовать дополнительных подтверждений/согласований.</p>
+        <p>Если важно сохранить единое имя — иногда решают через регистрацию торговой марки (10 лет + продление).</p>
+        <p>Имя должно отражать деятельность; знаки препинания часто не допускаются.</p>
+        <div class="mini-diagram">
+          <span class="chip">Trade Name</span><span class="arrow"></span>
+          <span class="chip">Лицензия</span><span class="arrow"></span>
+          <span class="chip">Инвойсы/контракты</span><span class="arrow"></span>
+          <span class="chip">KYC доверие</span>
+        </div>
+      </div>
+
+      <div class="nav">
+        <button class="btn-secondary" id="back-3">Назад</button>
+        <button class="btn-primary" id="next-3" disabled>Далее</button>
+      </div>
+    </section>
+
+    <section class="card screen" data-screen="4">
+      <h2>Банк смотрит на управляемость: где центр управления и контроля.</h2>
+
+      <div class="question">
+        <p><strong>Есть подтверждаемый адрес/офис?</strong></p>
+        <div class="options" role="radiogroup" aria-label="Адрес">
+          <label class="option"><input type="radio" name="q5" value="Да (офис/договор аренды)" /> Да (офис/договор аренды)</label>
+          <label class="option"><input type="radio" name="q5" value="Нужен виртуальный формат / flexi desk" /> Нужен виртуальный формат / flexi desk</label>
+          <label class="option"><input type="radio" name="q5" value="Пока нет" /> Пока нет</label>
+        </div>
+      </div>
+
+      <div class="hint" id="hint-4">
+        <p>Юрлицу нужен подтверждаемый адрес (офис/склад/коммерческая площадь) — маркер реального присутствия.</p>
+        <p>Если адреса/офиса нет — растёт объём вопросов комплаенса. У SORP есть инфраструктурное решение через Business Centre (без адресов и деталей).</p>
+        <div class="mini-diagram">
+          <span class="chip">Адрес/офис</span><span class="arrow"></span>
+          <span class="chip">управление из ОАЭ</span><span class="arrow"></span>
+          <span class="chip">KYC доверие</span><span class="arrow"></span>
+          <span class="chip">стабильность счёта</span>
+        </div>
+      </div>
+
+      <div class="nav">
+        <button class="btn-secondary" id="back-4">Назад</button>
+        <button class="btn-primary" id="next-4" disabled>Далее</button>
+      </div>
+    </section>
+
+    <section class="card screen" data-screen="5">
+      <h2>Ваш кейс понятен. Дальше — правильный сценарий.</h2>
+      <div class="final-block" id="final-block"></div>
+      <p class="subtitle">Если не хотите заполнять форму — напишите в WhatsApp одной строкой: «Статус: компания (да/нет), подписант (резидент/нет), платежи (лок/межд), офис (да/нет)».</p>
+
+      <div class="nav">
+        <button class="btn-secondary" id="back-5">Назад</button>
+        <button class="btn-primary" id="reset-btn-5">Сбросить</button>
+      </div>
+    </section>
+
+    <section class="card white-spots">
+      <h2>Белые пятна</h2>
+      <p>Банк-специфичные формулировки, скоринг и шаблоны — это часть сопровождения. Мы оставляем эти детали за кадром, чтобы сохранить результативность процесса.</p>
+      <button class="btn-secondary" id="pdf-btn">Скачать краткий чек-лист (PDF)</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>SORP · Экспертный комплаенс-подход к корпоративным счетам в ОАЭ.</p>
+  </footer>
+
+  <div class="toast" id="toast">Файл будет доступен по запросу</div>
+
+  <script>
+    const state = {
+      q1: "",
+      q2: "",
+      q3: "",
+      q4: [],
+      q5: ""
+    };
+
+    const screens = Array.from(document.querySelectorAll(".screen"));
+    const progressBar = document.getElementById("progress-bar");
+    const toast = document.getElementById("toast");
+
+    const updateProgress = (index) => {
+      const percent = Math.round(((index + 1) / screens.length) * 100);
+      progressBar.style.width = `${percent}%`;
+    };
+
+    const showScreen = (index) => {
+      screens.forEach((screen, i) => {
+        screen.classList.toggle("active", i === index);
+      });
+      updateProgress(index);
+      if (index === 4) {
+        renderFinal();
+      }
+    };
+
+    const resetAll = () => {
+      state.q1 = "";
+      state.q2 = "";
+      state.q3 = "";
+      state.q4 = [];
+      state.q5 = "";
+
+      document.querySelectorAll("input").forEach((input) => {
+        input.checked = false;
+      });
+      document.querySelectorAll(".hint").forEach((hint) => {
+        hint.classList.remove("visible");
+      });
+      document.querySelectorAll("[id^=next-"]").forEach((btn) => {
+        btn.disabled = true;
+      });
+      showScreen(0);
+    };
+
+    const hintToggle = (hintId, isVisible) => {
+      const hint = document.getElementById(hintId);
+      if (hint) {
+        hint.classList.toggle("visible", isVisible);
+      }
+    };
+
+    const updateNextButton = (screenIndex) => {
+      const nextBtn = document.getElementById(`next-${screenIndex + 1}`);
+      if (!nextBtn) return;
+
+      const canProceed =
+        (screenIndex === 0 && state.q1 && state.q2) ||
+        (screenIndex === 1 && state.q3) ||
+        (screenIndex === 2 && state.q4.length > 0) ||
+        (screenIndex === 3 && state.q5);
+
+      nextBtn.disabled = !canProceed;
+    };
+
+    const summary = () => {
+      return {
+        q1: state.q1 || "не указано",
+        q2: state.q2 || "не указано",
+        q3: state.q3 || "не указано",
+        q4: state.q4.length ? state.q4.join(", ") : "не указано",
+        q5: state.q5 || "не указано"
+      };
+    };
+
+    const buildWhatsAppLink = (message) => {
+      const phone = "+971XXXXXXXXX"; // TODO: replace with real number
+      const encoded = encodeURIComponent(message);
+      return `https://wa.me/${phone}?text=${encoded}`;
+    };
+
+    const renderFinal = () => {
+      const finalBlock = document.getElementById("final-block");
+      const choices = summary();
+      let variant = "E";
+
+      if (state.q1 === "Ещё нет") {
+        variant = "A";
+      } else if (state.q2 === "Нет" || state.q2 === "В процессе") {
+        variant = "B";
+      } else if (state.q3 === "Торговля" || state.q3 === "Смешанная" || hasSensitiveName()) {
+        variant = "C";
+      } else if (state.q5 === "Пока нет") {
+        variant = "D";
+      }
+
+      const variants = {
+        A: {
+          text: "Начинать нужно с bank-ready архитектуры: юрисдикция, лицензия, роль подписанта, имя компании. Ошибка на старте = отказ/перезапуск.",
+          cta: "Написать в WhatsApp: Нужна bank-ready регистрация + счёт"
+        },
+        B: {
+          text: "В вашем случае решает статус подписанта и модель управления: от этого зависят сроки, сервисы и глубина KYC.",
+          cta: "WhatsApp: Подписант нерезидент — какой сценарий пройти правильно?"
+        },
+        C: {
+          text: "Банки особенно проверяют совпадение: имя ↔ лицензия ↔ реальные инвойсы ↔ контрагенты. Мы убираем несостыковки до подачи.",
+          cta: "WhatsApp: Проверьте связку имя-лицензия-операции перед подачей"
+        },
+        D: {
+          text: "Без подтверждаемого присутствия банк чаще усиливает комплаенс. Подскажем, какой формат пройдёт KYC в вашем кейсе.",
+          cta: "WhatsApp: Нет офиса — какой вариант bank-ready?"
+        },
+        E: {
+          text: "Вы близко к подаче. Здесь выигрывает качество KYC-упаковки и правильная коммуникация с банком при запросах.",
+          cta: "WhatsApp: Готовы к подаче — сделайте pre-check пакета"
+        }
+      };
+
+      const whatsappMessage = `${variants[variant].cta}.\nСводка: компания — ${choices.q1}; подписант — ${choices.q2}; деятельность — ${choices.q3}; name/license — ${choices.q4}; офис — ${choices.q5}.`;
+      const waLink = buildWhatsAppLink(whatsappMessage);
+
+      finalBlock.innerHTML = `
+        <p>${variants[variant].text}</p>
+        <div class="cta-group">
+          <a class="cta-link whatsapp" href="${waLink}" target="_blank" rel="noopener noreferrer">${variants[variant].cta}</a>
+          <button class="btn-secondary" id="open-form">Оставить контакты</button>
+        </div>
+        <div class="form-card" id="lead-form">
+          <div class="field">
+            <label>Имя</label>
+            <input type="text" id="lead-name" placeholder="Ваше имя" />
+          </div>
+          <div class="field">
+            <label>Телефон/WhatsApp</label>
+            <input type="text" id="lead-phone" placeholder="+971" />
+          </div>
+          <div class="field">
+            <label>Email (опционально)</label>
+            <input type="email" id="lead-email" placeholder="you@example.com" />
+          </div>
+          <div class="field">
+            <label>Комментарий (опционально)</label>
+            <textarea id="lead-comment" placeholder="Коротко о задаче"></textarea>
+          </div>
+          <input type="hidden" id="lead-summary" value="" />
+          <button class="btn-primary" id="send-lead">Отправить</button>
+        </div>
+      `;
+
+      const form = document.getElementById("lead-form");
+      const openForm = document.getElementById("open-form");
+      const sendLead = document.getElementById("send-lead");
+      const summaryField = document.getElementById("lead-summary");
+
+      summaryField.value = JSON.stringify(choices, null, 2);
+
+      openForm.addEventListener("click", () => {
+        form.classList.toggle("visible");
+      });
+
+      sendLead.addEventListener("click", () => {
+        const payload = {
+          name: document.getElementById("lead-name").value.trim(),
+          phone: document.getElementById("lead-phone").value.trim(),
+          email: document.getElementById("lead-email").value.trim(),
+          comment: document.getElementById("lead-comment").value.trim(),
+          summary: summary()
+        };
+        console.log("Lead submission", payload);
+        form.innerHTML = "<p><strong>Спасибо!</strong> Мы свяжемся с вами.</p>";
+      });
+    };
+
+    const hasSensitiveName = () => {
+      return state.q4.some((item) => item !== "Ничего из этого");
+    };
+
+    const handleCheckboxGroup = (event) => {
+      const value = event.target.value;
+      if (value === "Ничего из этого") {
+        state.q4 = [value];
+        document.querySelectorAll("input[name='q4']").forEach((input) => {
+          input.checked = input.value === value;
+        });
+      } else {
+        const noneOption = document.querySelector("input[name='q4'][value='Ничего из этого']");
+        if (noneOption) noneOption.checked = false;
+        state.q4 = Array.from(document.querySelectorAll("input[name='q4']:checked")).map(
+          (input) => input.value
+        );
+      }
+      hintToggle("hint-3", state.q4.length > 0);
+      updateNextButton(2);
+    };
+
+    document.querySelectorAll("input[name='q1']").forEach((input) => {
+      input.addEventListener("change", (event) => {
+        state.q1 = event.target.value;
+        hintToggle("hint-1", state.q1 && state.q2);
+        updateNextButton(0);
+      });
+    });
+
+    document.querySelectorAll("input[name='q2']").forEach((input) => {
+      input.addEventListener("change", (event) => {
+        state.q2 = event.target.value;
+        hintToggle("hint-1", state.q1 && state.q2);
+        updateNextButton(0);
+      });
+    });
+
+    document.querySelectorAll("input[name='q3']").forEach((input) => {
+      input.addEventListener("change", (event) => {
+        state.q3 = event.target.value;
+        hintToggle("hint-2", !!state.q3);
+        updateNextButton(1);
+      });
+    });
+
+    document.querySelectorAll("input[name='q4']").forEach((input) => {
+      input.addEventListener("change", handleCheckboxGroup);
+    });
+
+    document.querySelectorAll("input[name='q5']").forEach((input) => {
+      input.addEventListener("change", (event) => {
+        state.q5 = event.target.value;
+        hintToggle("hint-4", !!state.q5);
+        updateNextButton(3);
+      });
+    });
+
+    document.getElementById("next-1").addEventListener("click", () => showScreen(1));
+    document.getElementById("next-2").addEventListener("click", () => showScreen(2));
+    document.getElementById("next-3").addEventListener("click", () => showScreen(3));
+    document.getElementById("next-4").addEventListener("click", () => showScreen(4));
+
+    document.getElementById("back-2").addEventListener("click", () => showScreen(0));
+    document.getElementById("back-3").addEventListener("click", () => showScreen(1));
+    document.getElementById("back-4").addEventListener("click", () => showScreen(2));
+    document.getElementById("back-5").addEventListener("click", () => showScreen(3));
+
+    document.getElementById("reset-btn-1").addEventListener("click", resetAll);
+    document.getElementById("reset-btn-5").addEventListener("click", resetAll);
+
+    document.getElementById("pdf-btn").addEventListener("click", () => {
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2400);
+    });
+
+    updateProgress(0);
+  </script>
+</body>
+</html>
