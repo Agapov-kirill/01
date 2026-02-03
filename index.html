@@ -232,7 +232,7 @@
     }
 
     .btn-primary:disabled {
-      background: #9cad9f;
+      background: #b7b7b7;
       cursor: not-allowed;
       box-shadow: none;
     }
@@ -317,24 +317,6 @@
       resize: vertical;
     }
 
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #222;
-      color: white;
-      padding: 12px 16px;
-      border-radius: 12px;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity var(--transition), transform var(--transition);
-    }
-
-    .toast.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
     footer {
       margin-top: 40px;
       padding: 20px;
@@ -343,13 +325,6 @@
       font-size: 0.9rem;
     }
 
-    .white-spots {
-      margin-top: 24px;
-      padding: 18px;
-      border-radius: 16px;
-      background: #f5f3f0;
-      border: 1px solid var(--line);
-    }
 
     @keyframes fadeIn {
       from {
@@ -390,23 +365,6 @@
   </header>
 
   <main>
-    <section class="card intro">
-      <div class="intro-grid">
-        <div class="pill">
-          <h3>Кому</h3>
-          <p>Собственникам, директорам и операционным руководителям в ОАЭ.</p>
-        </div>
-        <div class="pill">
-          <h3>Цель</h3>
-          <p>Подготовить bank-ready логику до подачи — без пустых кругов.</p>
-        </div>
-        <div class="pill">
-          <h3>Важно</h3>
-          <p>20 лет в ОАЭ: говорим чётко, но не раскрываем банк-специфику.</p>
-        </div>
-      </div>
-    </section>
-
     <section class="card screen active" data-screen="1">
       <h2>Начинаем с правильных вводных — это экономит недели.</h2>
 
@@ -562,18 +520,11 @@
       </div>
     </section>
 
-    <section class="card white-spots">
-      <h2>Белые пятна</h2>
-      <p>Банк-специфичные формулировки, скоринг и шаблоны — это часть сопровождения. Мы оставляем эти детали за кадром, чтобы сохранить результативность процесса.</p>
-      <button class="btn-secondary" id="pdf-btn">Скачать краткий чек-лист (PDF)</button>
-    </section>
   </main>
 
   <footer>
     <p>SORP · Экспертный комплаенс-подход к корпоративным счетам в ОАЭ.</p>
   </footer>
-
-  <div class="toast" id="toast">Файл будет доступен по запросу</div>
 
   <script>
     const state = {
@@ -586,7 +537,6 @@
 
     const screens = Array.from(document.querySelectorAll(".screen"));
     const progressBar = document.getElementById("progress-bar");
-    const toast = document.getElementById("toast");
 
     const updateProgress = (index) => {
       const percent = Math.round(((index + 1) / screens.length) * 100);
@@ -822,11 +772,6 @@
 
     document.getElementById("reset-btn-1").addEventListener("click", resetAll);
     document.getElementById("reset-btn-5").addEventListener("click", resetAll);
-
-    document.getElementById("pdf-btn").addEventListener("click", () => {
-      toast.classList.add("visible");
-      setTimeout(() => toast.classList.remove("visible"), 2400);
-    });
 
     updateProgress(0);
   </script>
